@@ -21,7 +21,7 @@ jobs:
       with:
       # list of Docker images to use as base name for tags
         images: |
-          testing/mailslurper
+          ${{secrets.HARBOR_HOSTNAME}}/testing/mailslurper
         tags: |
           type=ref,event=branch
           type=semver,pattern={{version}}
@@ -42,7 +42,7 @@ jobs:
         file: ./Dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          testing/mailslurper:latest
+          ${{secrets.HARBOR_HOSTNAME}}/testing/mailslurper:latest
           ${{ steps.meta.outputs.tags }}
         labels: |
           ${{ steps.meta.outputs.labels }}
