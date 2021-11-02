@@ -1,0 +1,49 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master, nzb301 ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+      # list of Docker images to use as base name for tags
+        images: |
+          testing/mailslurper
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=sha
+
+    - name: Docker Login
+      uses: docker/login-action@v1.9.0
+      with:
+        registry: ${{secrets.HARBOR_HOSTNAME}}
+        username: ${{secrets.HARBOR_ROBOT_USER}}
+        password: ${{secrets.HARBOR_ROBOT_PASSWORD}}
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v2.7.0
+      with:
+        file: ./Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: |
+          testing/mailslurper:latest
+          ${{ steps.meta.outputs.tags }}
+        labels: |
+          ${{ steps.meta.outputs.labels }}
+          nzb301=rulez
