@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master, nzb301 ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -21,7 +21,7 @@ jobs:
       with:
       # list of Docker images to use as base name for tags
         images: |
-          ${{secrets.HARBOR_HOSTNAME}}/testing/mailslurper
+          ${{secrets.HARBOR_HOSTNAME}}/shared/mailslurper
         tags: |
           type=ref,event=branch
           type=semver,pattern={{version}}
@@ -33,8 +33,8 @@ jobs:
       uses: docker/login-action@v1.9.0
       with:
         registry: ${{secrets.HARBOR_HOSTNAME}}
-        username: ${{secrets.HARBOR_ROBOT_USER}}
-        password: ${{secrets.HARBOR_ROBOT_PASSWORD}}
+        username: ${{secrets.HARBOR_SHARED_ROBOT_USER}}
+        password: ${{secrets.HARBOR_SHARED_ROBOT_PASSWORD}}
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v2.7.0
@@ -42,8 +42,7 @@ jobs:
         file: ./Dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          ${{secrets.HARBOR_HOSTNAME}}/testing/mailslurper:latest
+          ${{secrets.HARBOR_HOSTNAME}}/shared/mailslurper:latest
           ${{ steps.meta.outputs.tags }}
         labels: |
           ${{ steps.meta.outputs.labels }}
-          nzb301=rulez
